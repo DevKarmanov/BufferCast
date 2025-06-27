@@ -1,17 +1,17 @@
 package com.karmanov.tools.clipboarcollector.service;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.IOException;
 
 @Service
-@AllArgsConstructor
-@Slf4j
-public class ClipBoardCollectorService {
-    public void getTextFromClipboard(){
+public class ClipBoardCollectorService implements CommandLineRunner {
+    private static final Logger logger = LoggerFactory.getLogger(ClipBoardCollectorService.class);
+    public static void getTextFromClipboard(){
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         String lastText = "";
 
@@ -29,7 +29,7 @@ public class ClipBoardCollectorService {
             catch(IllegalStateException e){
                 System.out.println("The clipboard is temporarily occupied. We'll try it later...");
             } catch (UnsupportedFlavorException | IOException e) {
-                e.printStackTrace();
+                logger.error("Error reading the file", e);
             }
 
             try {
@@ -39,5 +39,10 @@ public class ClipBoardCollectorService {
                 break;
             }
         }
+    }
+
+    @Override
+    public void run(String... args) {
+        ClipBoardCollectorService.getTextFromClipboard();
     }
 }
