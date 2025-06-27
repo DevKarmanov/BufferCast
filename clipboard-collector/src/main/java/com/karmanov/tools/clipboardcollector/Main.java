@@ -1,4 +1,4 @@
-package com.karmanov.tools.clipboarcollector;
+package com.karmanov.tools.clipboardcollector;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
