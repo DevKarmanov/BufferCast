@@ -15,7 +15,7 @@ public class ClipBoardCollectorInitialize implements ApplicationListener<Applica
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        Thread watcherThread = new Thread(clipBoardCollectorService::getTextFromClipboard, "clipboard");
+        Thread watcherThread = new Thread(clipBoardCollectorService::clipboardMonitoring, "clipboard");
         watcherThread.setDaemon(false);
         watcherThread.start();
     }
