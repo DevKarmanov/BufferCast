@@ -5,21 +5,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import java.awt.*;
 import java.awt.datatransfer.*;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.HashSet;
-import java.util.List;
 
 @Service
 public class ClipBoardCollectorService{
     private static final Logger logger = LoggerFactory.getLogger(ClipBoardCollectorService.class);
     private String lastText = "";
-    private final HashSet<File> lastFiles = new HashSet<>();
+    private final HashSet<String> mailStorage = new HashSet<>();
     private final HashSet<String> textStorage = new HashSet<>();
-    private final HashSet<File> imgStorage = new HashSet<>();
-    private final HashSet<String> urlStorage = new HashSet<>();
-    private final HashSet<File> fileStorage = new HashSet<>();
+    private final HashSet<String> phoneStorage = new HashSet<>();
+    private final HashSet<String> httpsStorage = new HashSet<>();
+    private final HashSet<String> customProtocolStorage = new HashSet<>();
+    private final HashSet<String> filePathStorage = new HashSet<>();
 
     public void clipboardMonitoring(){
         logger.info("Launching Clipboard monitoring...");
@@ -34,20 +32,6 @@ public class ClipBoardCollectorService{
 
                     if (!currentText.equals(lastText)) {
                         lastText = currentText;
-                    }
-                }
-                if (clipboard != null && clipboard.isDataFlavorAvailable(DataFlavor.javaFileListFlavor)) {
-                    @SuppressWarnings("unchecked")
-                    List<File> currentFiles = (List<File>) clipboard.getData(DataFlavor.javaFileListFlavor);
-                    HashSet<File> currentFilesSet = new HashSet<>(currentFiles);
-
-                    for (File currentFile : currentFilesSet) {
-                        addFileToStorage(currentFile);
-
-                        if (!currentFilesSet.equals(lastFiles)) {
-                            lastFiles.clear();
-                            lastFiles.add(currentFile);
-                        }
                     }
                 }
             } catch (IllegalStateException e) {
@@ -65,36 +49,54 @@ public class ClipBoardCollectorService{
         }
     }
 
-    public void addTextToStorage(String text){
-        String regex = "^[a-zA-Z][a-zA-Z0-9+.-]*://.+$";
-        if (text.matches(regex) && !urlStorage.contains(text)){
-            urlStorage.add(text);
-            System.out.println("Url in the clipboard: " + text);
+    private void addTextToStorage(String text){
+        String urlRegex = "^[a-zA-Z][a-zA-Z0-9+.-]*://.+$";
+        String emailRegex = "^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$";
+        String phoneRegex = "^\\+?[0-9\\s()-]{7,}$";
+        String filePathRegex = "^[A-Z]:\\\\(?:[^\\\\/:*?\"<>|\\r\\n]+\\\\)*[^\\\\/:*?\"<>|\\r\\n]*$";
+
+        if (text.matches(urlRegex)){
+            sortUrl(text.trim());
         }
-        if (!text.matches(regex) && !textStorage.contains(text)) {
+        if (text.matches(emailRegex) && !mailStorage.contains(text)){
+            mailStorage.add(text);
+            System.out.println("Email added to MailStorage: " + text);
+        }
+        if (text.matches(phoneRegex) && !phoneStorage.contains(text)) {
+            phoneStorage.add(text);
+            System.out.println("Phone added to PhoneStorage: " + text);
+        }
+        if (text.matches(filePathRegex) && !filePathStorage.contains(text)) {
+            sortFilePath(text);
+        }
+        else if (!textStorage.contains(text) && !text.matches(filePathRegex)
+                && !text.matches(urlRegex) && !text.matches(emailRegex)
+                && !text.matches(phoneRegex)) {
             textStorage.add(text);
-            System.out.println("Text in the clipboard: " + text);
+            System.out.println("Text added to TextStorage: " + text);
         }
     }
 
-    public void addFileToStorage(File file){
-        if (isImageFile(file) && !imgStorage.contains(file)){
-            imgStorage.add(file);
-            System.out.println("Img in the clipboard: " + file.getName());
+    private void sortUrl (String url){
+        String httpsUrlRegex = "^https?://.+$";
+        String customProtocolRegex = "^(?!https?|ftp)([a-zA-Z][a-zA-Z0-9+.-]*)://.+$";
+        String urlPathRegex = "^file:///([A-Z]:/[^<>:\\\"|?*\\r\\n]*)$";
+
+        if (url.matches(httpsUrlRegex) && !httpsStorage.contains(url)){
+            httpsStorage.add(url);
+            System.out.println("HTTPS Url added to HttpsStorage: " + url);
         }
-        else if (!fileStorage.contains(file) && !isImageFile(file)){
-            fileStorage.add(file);
-            System.out.println("File in the clipboard: " + file.getName());
+        if (url.matches(customProtocolRegex) && !customProtocolStorage.contains(url)){
+            customProtocolStorage.add(url);
+            System.out.println("Custom Protocol Url added to CustomProtocolStorage: " + url);
+        }
+        else if (url.matches(urlPathRegex) && !filePathStorage.contains(url)) {
+            sortFilePath(url);
         }
     }
 
-    private boolean isImageFile(File file) {
-        try {
-            String mimeType = Files.probeContentType(file.toPath());
-            return mimeType != null && mimeType.startsWith("image");
-        } catch (IOException e) {
-            logger.warn("Cannot determine file type for {}", file.getName());
-            return false;
-        }
+    private void sortFilePath (String filePath){
+        filePathStorage.add(filePath);
+        System.out.println("File path added to FilePathStorage: " + filePath);
     }
 }
