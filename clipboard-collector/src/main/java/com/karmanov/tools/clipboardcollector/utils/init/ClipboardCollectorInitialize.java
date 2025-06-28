@@ -1,15 +1,15 @@
 package com.karmanov.tools.clipboardcollector.utils.init;
 
-import com.karmanov.tools.clipboardcollector.service.ClipBoardCollectorService;
+import com.karmanov.tools.clipboardcollector.service.ClipboardCollectorService;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ClipBoardCollectorInitialize implements ApplicationListener<ApplicationReadyEvent> {
-    private final ClipBoardCollectorService clipBoardCollectorService;
+public class ClipboardCollectorInitialize implements ApplicationListener<ApplicationReadyEvent> {
+    private final ClipboardCollectorService clipBoardCollectorService;
 
-    public ClipBoardCollectorInitialize(ClipBoardCollectorService clipBoardCollectorService) {
+    public ClipboardCollectorInitialize(ClipboardCollectorService clipBoardCollectorService) {
         this.clipBoardCollectorService = clipBoardCollectorService;
     }
 
