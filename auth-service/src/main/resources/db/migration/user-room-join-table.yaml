@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-user-room-join-table
+      author: DevKarmanov
+      preConditions:
+        onFail: MARK_RAN
+        and:
+          - not:
+              tableExists:
+                tableName: user_room
+      changes:
+        - createTable:
+            tableName: user_room
+            columns:
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: room_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            columnNames: user_id, room_id
+            tableName: user_room
+        - addForeignKeyConstraint:
+            baseTableName: user_room
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_user_room_user
+        - addForeignKeyConstraint:
+            baseTableName: user_room
+            baseColumnNames: room_id
+            referencedTableName: room_entity
+            referencedColumnNames: id
+            constraintName: fk_user_room_room

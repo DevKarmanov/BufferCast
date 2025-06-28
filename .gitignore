@@ -1,10 +1,17 @@
 .gradle
+*.env
+application.yaml
+application.yml
+init/init.sql
+!application-example.yaml
+!application-example.yml
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
 ### IntelliJ IDEA ###
+.idea/
 .idea/modules.xml
 .idea/jarRepositories.xml
 .idea/compiler.xml
