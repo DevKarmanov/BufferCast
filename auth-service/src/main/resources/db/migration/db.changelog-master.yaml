@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: db/migration/users-table.yaml
+  - include:
+      file: db/migration/rooms-table.yaml
+  - include:
+      file: db/migration/user-room-join-table.yaml
