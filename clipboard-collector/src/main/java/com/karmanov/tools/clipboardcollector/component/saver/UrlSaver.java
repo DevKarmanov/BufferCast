@@ -1,4 +1,4 @@
-package com.karmanov.tools.clipboardcollector.component;
+package com.karmanov.tools.clipboardcollector.component.saver;
 
 import org.springframework.stereotype.Component;
 
@@ -9,18 +9,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component
-public class UrlFilter implements ClipboardTextFilterInterface{
+@Component("url")
+public class UrlSaver implements TextSaver {
     private static final Pattern URL_REGEX = Pattern.compile("^([a-zA-Z][a-zA-Z0-9+.-]*):(?://)?\\S+$");
     private final Map<String, Set<String>> protocolToUrl = new HashMap<>();
 
     @Override
-    public boolean support(String text) {
-        return URL_REGEX.matcher(text).matches();
-    }
-
-    @Override
-    public void handle(String text) {
+    public void save(String text) {
         Matcher matcher = URL_REGEX.matcher(text);
         boolean isExist = protocolToUrl.values().stream().anyMatch(e -> e.contains(text));
 

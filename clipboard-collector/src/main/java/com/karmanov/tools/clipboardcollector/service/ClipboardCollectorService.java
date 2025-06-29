@@ -1,25 +1,21 @@
 package com.karmanov.tools.clipboardcollector.service;
 
-import com.karmanov.tools.clipboardcollector.component.ClipboardTextFilterInterface;
+import com.karmanov.tools.clipboardcollector.component.validator.TextValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Service
 public class ClipboardCollectorService {
-    private final List<ClipboardTextFilterInterface> textFilters;
+    private final TextValidator textValidator;
     private String lastText = "";
-    private final Set<String> textStorage = new HashSet<>();
     private static final Logger logger = LoggerFactory.getLogger(ClipboardCollectorService.class);
 
-    public ClipboardCollectorService(List<ClipboardTextFilterInterface> textFilters) {
-        this.textFilters = textFilters;
+    public ClipboardCollectorService(TextValidator textValidator) {
+        this.textValidator = textValidator;
     }
 
     public void clipboardMonitoring(){
@@ -44,7 +40,7 @@ public class ClipboardCollectorService {
             }
 
             try {
-                Thread.sleep(500);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 logger.info("Clipboard monitoring has been stopped.");
                 Thread.currentThread().interrupt();
@@ -53,19 +49,6 @@ public class ClipboardCollectorService {
     }
 
     private void addTextToStorage(String text){
-        boolean handled = false;
-
-        for (ClipboardTextFilterInterface textFilter : textFilters){
-            if (textFilter.support(text)){
-                textFilter.handle(text);
-                handled = true;
-                break;
-            }
-        }
-
-        if (!handled && !textStorage.contains(text)){
-            textStorage.add(text);
-            System.out.println("Added text to TextStorage: " + text);
-        }
+        textValidator.validation(text);
     }
 }

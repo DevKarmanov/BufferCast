@@ -1,4 +1,4 @@
-package com.karmanov.tools.clipboardcollector.component;
+package com.karmanov.tools.clipboardcollector.component.saver;
 
 import org.springframework.stereotype.Component;
 
@@ -9,19 +9,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component
-public class FilePathFilter implements ClipboardTextFilterInterface{
+@Component("path")
+public class PathSaver implements TextSaver{
     private static final Pattern PATH_REGEX = Pattern.compile("^([a-zA-Z]):\\\\(?:[^\\\\/:*?\"<>|\\r\\n]+\\\\)*[^\\\\/:*?\"<>|\\r\\n]*$");
-
     private final Map<String, Set<String>> discToPath = new HashMap<>();
 
     @Override
-    public boolean support(String text) {
-        return PATH_REGEX.matcher(text).matches();
-    }
-
-    @Override
-    public void handle(String text) {
+    public void save(String text) {
         Matcher matcher = PATH_REGEX.matcher(text);
         boolean isExist = discToPath.values().stream().anyMatch(e -> e.contains(text));
 
@@ -34,7 +28,7 @@ public class FilePathFilter implements ClipboardTextFilterInterface{
                     })
                     .add(text);
 
-            System.out.println("Url " + text + " has been added to storage: " + disc);
+            System.out.println("Path " + text + " has been added to disc: " + disc);
         }
     }
 }

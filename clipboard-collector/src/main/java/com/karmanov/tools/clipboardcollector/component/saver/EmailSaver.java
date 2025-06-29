@@ -1,4 +1,4 @@
-package com.karmanov.tools.clipboardcollector.component;
+package com.karmanov.tools.clipboardcollector.component.saver;
 
 import org.springframework.stereotype.Component;
 
@@ -9,18 +9,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component
-public class EmailFilter implements ClipboardTextFilterInterface {
+@Component("email")
+public class EmailSaver implements TextSaver {
     private static final Pattern EMAIL_REGEX = Pattern.compile("^[\\w.-]+@([\\w.-]+\\.[a-zA-Z]{2,})$");
     private final Map<String, Set<String>> domainToEmails = new HashMap<>();
 
     @Override
-    public boolean support(String text) {
-        return EMAIL_REGEX.matcher(text).matches();
-    }
-
-    @Override
-    public void handle(String text) {
+    public void save(String text) {
         Matcher matcher = EMAIL_REGEX.matcher(text);
         boolean isExist = domainToEmails.values().stream().anyMatch(e -> e.contains(text));
 
