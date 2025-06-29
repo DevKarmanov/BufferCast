@@ -1,10 +1,14 @@
 package com.karmanov.auth.authservice.controller.user;
 
+import com.karmanov.auth.authservice.dto.response.UserProfileInfo;
+import com.karmanov.auth.authservice.dto.response.UserRooms;
 import com.karmanov.auth.authservice.service.user.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
 public class UserControllerImpl implements UserController {
@@ -15,15 +19,21 @@ public class UserControllerImpl implements UserController {
     }
 
     @Override
-    public ResponseEntity<?> getProfileInformation(Authentication authentication){
+    public ResponseEntity<UserProfileInfo> getCurrentUserInfo(Authentication authentication){
         Jwt jwt = (Jwt) authentication.getPrincipal();
         String keycloakId = jwt.getSubject();
 
-        try {
-            return ResponseEntity.ok(userService.getOrCreateUser(keycloakId));
-        }catch (Exception e){
-            return ResponseEntity.internalServerError().body(e.getMessage());
-        }
+        return ResponseEntity.ok(userService.getOrCreateUser(keycloakId));
+    }
+
+    @Override
+    public ResponseEntity<UserProfileInfo> getUserInfo(UUID id) {
+        return ResponseEntity.ok(userService.getUserInfo(id));
+    }
+
+    @Override
+    public ResponseEntity<UserRooms> getUserRooms(UUID id) {
+        return ResponseEntity.ok(userService.getUserRooms(id));
     }
 }
 

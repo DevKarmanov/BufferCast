@@ -1,6 +1,7 @@
 package com.karmanov.auth.authservice.dto.response;
 
 import java.util.List;
+import java.util.UUID;
 
-public record UserProfileInfo(String keycloakId, List<UserCreatedRoom> createdRooms, List<UserJoinedRoom> rooms) {
+public record UserProfileInfo(UUID id, List<UserCreatedRoom> createdRooms, List<UserJoinedRoom> rooms) {
 }

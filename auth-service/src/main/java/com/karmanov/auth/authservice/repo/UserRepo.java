@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface UserRepo extends JpaRepository<UserEntity, UUID> {
     boolean existsByKeycloakId(String keycloakId);
-
     @EntityGraph(attributePaths = {"createdRooms", "rooms"})
     UserEntity findByKeycloakId(String keycloakId);
+
 }
