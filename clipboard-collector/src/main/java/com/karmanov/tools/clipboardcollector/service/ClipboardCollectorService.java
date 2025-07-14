@@ -18,12 +18,23 @@ public class ClipboardCollectorService {
         this.textValidator = textValidator;
     }
 
-    public void clipboardMonitoring(){
+    public void clipboardMonitoring() {
         logger.info("Launching Clipboard monitoring...");
 
-        while (!Thread.currentThread().isInterrupted()){
-            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        String initialText = "";
 
+        try {
+            if (clipboard != null && clipboard.isDataFlavorAvailable(DataFlavor.stringFlavor)) {
+                initialText = (String) clipboard.getData(DataFlavor.stringFlavor);
+            }
+        } catch (Exception e) {
+            logger.warn("Could not read initial clipboard content: {} - {}", e.getClass().getName(), e.getMessage());
+        }
+
+        lastText = initialText;
+
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 if (clipboard != null && clipboard.isDataFlavorAvailable(DataFlavor.stringFlavor)) {
                     String currentText = (String) clipboard.getData(DataFlavor.stringFlavor);
