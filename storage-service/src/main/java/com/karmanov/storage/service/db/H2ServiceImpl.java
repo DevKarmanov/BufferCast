@@ -27,7 +27,7 @@ public class H2ServiceImpl implements DbService {
     @Override
     @Transactional
     public void save(StorageTextSavedEvent dtoEntity) {
-        TextEntity entity = entityMapper.mapToEntity(dtoEntity);
+        TextEntity entity = entityMapper.StotageTextSavedToTextEntity(dtoEntity);
         h2TextRepository.save(entity);
         logger.info("Saved successfully: {}", entity.getId());
     }
@@ -40,6 +40,7 @@ public class H2ServiceImpl implements DbService {
             logger.info("Deleted by id: {} is successfully", id);
         } catch (DataAccessException ex) {
             logger.error("Access error in H2", ex);
+            throw ex;
         }
     }
 

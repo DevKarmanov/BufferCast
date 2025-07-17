@@ -11,7 +11,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -32,7 +31,7 @@ public class PostgresServiceImpl implements DbService {
     @Async
     @Transactional
     public void save(StorageTextSavedEvent dtoEntity) {
-        TextEntity entity = entityMapper.mapToEntity(dtoEntity);
+        TextEntity entity = entityMapper.StotageTextSavedToTextEntity(dtoEntity);
         postgresTextRepository.save(entity);
         logger.info("Saved to Postgres: {}", entity);
     }
@@ -46,6 +45,7 @@ public class PostgresServiceImpl implements DbService {
             logger.info("Deleted by id: {} is successfully", id);
         } catch (DataAccessException ex) {
             logger.error("Access error in Postgres", ex);
+            throw ex;
         }
     }
 

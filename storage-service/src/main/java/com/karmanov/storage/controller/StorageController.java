@@ -13,9 +13,9 @@ import java.util.UUID;
 @RequestMapping("/storage")
 public interface StorageController {
     @PostMapping("/{id}")
-    ResponseEntity<Void> deleteById(@PathVariable UUID id);
+    ResponseEntity<String> deleteById(@PathVariable UUID id);
 
     @GetMapping("/{id}")
-    ResponseEntity<TextEntity> findById(@PathVariable UUID id);
+    ResponseEntity<?> findById(@PathVariable UUID id);
 
 }

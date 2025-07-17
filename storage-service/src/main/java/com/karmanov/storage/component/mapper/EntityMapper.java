@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class EntityMapper {
-    public <T extends TextData> TextEntity mapToEntity(T dto) {
+    public <T extends TextData> TextEntity StotageTextSavedToTextEntity(T dto) {
         TextEntity entity = new TextEntity();
         entity.setId(dto.id());
         entity.setContent(dto.text());
