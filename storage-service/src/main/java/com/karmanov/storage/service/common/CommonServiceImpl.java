@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +32,6 @@ public class CommonServiceImpl implements CommonService {
     }
 
     @Override
-    @Transactional
     public void save(StorageTextSavedEvent event) {
         try {
             h2Service.save(event);
@@ -45,7 +43,6 @@ public class CommonServiceImpl implements CommonService {
     }
 
     @Override
-    @Transactional
     public void deleteById(UUID id) {
         if (id == null) {
             logger.error("Attempt to call delete with null ID");
@@ -86,7 +83,6 @@ public class CommonServiceImpl implements CommonService {
     }
 
     @Override
-    @Transactional
     public void clearExpired(List<TextEntity> textEntities) {
         if (textEntities == null) {
             logger.error("Attempt to call Delete with null textEntities");

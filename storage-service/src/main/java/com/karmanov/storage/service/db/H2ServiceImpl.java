@@ -25,7 +25,7 @@ public class H2ServiceImpl implements DbService {
     }
 
     @Override
-    @Transactional
+    @Transactional("h2TransactionManager")
     public void save(StorageTextSavedEvent dtoEntity) {
         TextEntity entity = entityMapper.StotageTextSavedToTextEntity(dtoEntity);
         h2TextRepository.save(entity);
@@ -33,7 +33,7 @@ public class H2ServiceImpl implements DbService {
     }
 
     @Override
-    @Transactional
+    @Transactional("h2TransactionManager")
     public void deleteById(UUID id) {
         try {
             h2TextRepository.deleteById(id);
@@ -45,7 +45,7 @@ public class H2ServiceImpl implements DbService {
     }
 
     @Override
-    @Transactional
+    @Transactional("h2TransactionManager")
     public void delete(TextEntity text) {
         try {
             h2TextRepository.delete(text);

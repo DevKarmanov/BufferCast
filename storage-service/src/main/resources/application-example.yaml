@@ -4,27 +4,26 @@ spring:
       ddl-auto: update
     show-sql: true
 
-  datasource:
-    jdbc-url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
-
   kafka:
     bootstrap-servers: localhost:9092
-
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
-
     consumer:
-      group-id: your-consumer-group-id
+      group-id: storage-service
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
 
+h2:
+  datasource:
+    jdbc-url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    username: your_username
+    password: your_password
+    driver-class-name: org.h2.Driver
+
 postgres:
   datasource:
-    jdbc-url: jdbc:postgresql://localhost:5432/your_database
+    jdbc-url: jdbc:postgresql://localhost:5432/your_database_name
     username: your_username
     password: your_password
     driver-class-name: org.postgresql.Driver

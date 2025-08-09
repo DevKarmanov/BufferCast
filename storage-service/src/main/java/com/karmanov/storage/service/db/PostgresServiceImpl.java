@@ -29,7 +29,7 @@ public class PostgresServiceImpl implements DbService {
 
     @Override
     @Async
-    @Transactional
+    @Transactional("postgresTransactionManager")
     public void save(StorageTextSavedEvent dtoEntity) {
         TextEntity entity = entityMapper.StotageTextSavedToTextEntity(dtoEntity);
         postgresTextRepository.save(entity);
@@ -38,7 +38,7 @@ public class PostgresServiceImpl implements DbService {
 
     @Override
     @Async
-    @Transactional
+    @Transactional("postgresTransactionManager")
     public void deleteById(UUID id) {
         try {
             postgresTextRepository.deleteById(id);
@@ -51,7 +51,7 @@ public class PostgresServiceImpl implements DbService {
 
     @Override
     @Async
-    @Transactional
+    @Transactional("postgresTransactionManager")
     public void delete(TextEntity text) {
         try {
             postgresTextRepository.delete(text);
