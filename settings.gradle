@@ -2,4 +2,4 @@ rootProject.name = 'BufferCast'
 include 'clipboard-collector'
 include 'auth-service'
 include 'gateway-service'
-
+include 'storage-service'

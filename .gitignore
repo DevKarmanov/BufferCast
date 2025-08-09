@@ -1,6 +1,7 @@
 .gradle
 *.env
 application.yaml
+application-dev.yaml
 application.yml
 init/init.sql
 !application-example.yaml
