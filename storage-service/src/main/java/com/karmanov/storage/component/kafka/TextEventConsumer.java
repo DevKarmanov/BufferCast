@@ -1,7 +1,7 @@
 package com.karmanov.storage.component.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.karmanov.storage.dto.StorageTextSavedEvent;
+import com.karmanov.storage.dto.ClipboardText;
 import com.karmanov.storage.service.common.CommonService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ public class TextEventConsumer {
     @KafkaListener(topics = "clipboard-events", groupId = "storage-service")
     public void handleEvent(byte[] bytesEvent) {
         try {
-            StorageTextSavedEvent event = mapper.readValue(bytesEvent, StorageTextSavedEvent.class);
+            ClipboardText event = mapper.readValue(bytesEvent, ClipboardText.class);
             commonService.save(event);
         } catch (Exception e) {
             logger.error("Error: {} - {}", e.getClass().getName(), e.getMessage(), e);

@@ -1,7 +1,8 @@
 package com.karmanov.storage.service.common;
 
+import com.karmanov.storage.component.mapper.EntityMapper;
 import com.karmanov.storage.component.ttl.TtlManagerImpl;
-import com.karmanov.storage.dto.StorageTextSavedEvent;
+import com.karmanov.storage.dto.ClipboardText;
 import com.karmanov.storage.model.TextEntity;
 import com.karmanov.storage.service.db.H2ServiceImpl;
 import com.karmanov.storage.service.db.PostgresServiceImpl;
@@ -9,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,38 +21,74 @@ public class CommonServiceImpl implements CommonService {
     private final PostgresServiceImpl postgresService;
     private final H2ServiceImpl h2Service;
     private final TtlManagerImpl ttlManagerImpl;
+    private final EntityMapper entityMapper;
 
     private static final Logger logger = LoggerFactory.getLogger(CommonServiceImpl.class);
 
     public CommonServiceImpl(PostgresServiceImpl postgresService,
                              H2ServiceImpl h2Service,
-                             TtlManagerImpl ttlManagerImpl) {
+                             TtlManagerImpl ttlManagerImpl, EntityMapper entityMapper) {
         this.postgresService = postgresService;
         this.h2Service = h2Service;
         this.ttlManagerImpl = ttlManagerImpl;
+        this.entityMapper = entityMapper;
     }
 
     @Override
-    @Transactional
-    public void save(StorageTextSavedEvent event) {
+    public void save(ClipboardText event) {
         try {
             h2Service.save(event);
             postgresService.save(event);
         }
-        catch(Exception e) {
-            logger.error("Error: {} - {}", e.getClass().getName(), e.getMessage(), e);
+        catch(DataAccessException e) {
+            if (e.getCause() != null && e.getMessage().toLowerCase().contains("postgres")) {
+                logger.error("Error saving in Postgres: {}. Roll back H2.", e.getMessage());
+                try{
+                    h2Service.deleteById(event.id());
+                }
+                catch (Exception rollbackEx){
+                    logger.error("Error when rolling back H2: {}", rollbackEx.getMessage(), rollbackEx);
+                }
+            }
+            else {
+                logger.error("Error saving data: {}", e.getMessage(), e);
+            }
+        }
+        catch (Exception e) {
+            logger.error("Unknown error: {}", e.getMessage(), e);
         }
     }
 
     @Override
-    @Transactional
     public void deleteById(UUID id) {
         if (id == null) {
             logger.error("Attempt to call delete with null ID");
             throw new IllegalArgumentException("ID must not be null");
         }
-        h2Service.deleteById(id);
-        postgresService.deleteById(id);
+
+        TextEntity backup = h2Service.findById(id);
+        ClipboardText dtoBackup = entityMapper.TextEntityToClipboardText(backup);
+
+        try {
+            h2Service.deleteById(id);
+            postgresService.deleteById(id);
+        }
+        catch (DataAccessException e){
+            if (e.getMessage() != null && e.getMessage().toLowerCase().contains("postgres")) {
+                logger.error("Error saving in Postgres: {}. Roll back H2...", e.getMessage());
+                try {
+                    if (dtoBackup != null) {
+                        h2Service.save(dtoBackup);
+                    }
+                } catch (Exception rollbackEx) {
+                    logger.error("Error when rolling back H2: {}", rollbackEx.getMessage(), rollbackEx);
+                }
+            } else {
+                logger.error("Error deleting data: {}", e.getMessage(), e);
+            }
+        } catch (Exception e) {
+            logger.error("Unknown error: {}", e.getMessage(), e);
+        }
     }
 
     @Override
@@ -86,7 +122,6 @@ public class CommonServiceImpl implements CommonService {
     }
 
     @Override
-    @Transactional
     public void clearExpired(List<TextEntity> textEntities) {
         if (textEntities == null) {
             logger.error("Attempt to call Delete with null textEntities");
@@ -94,12 +129,34 @@ public class CommonServiceImpl implements CommonService {
         }
         try {
             for (TextEntity textEntity : textEntities) {
+                ClipboardText dtoBackup = entityMapper.TextEntityToClipboardText(textEntity);
+
                 if (isExpired(textEntity)) {
-                    h2Service.delete(textEntity);
-                    postgresService.delete(textEntity);
+                    try {
+                        h2Service.delete(textEntity);
+                        postgresService.delete(textEntity);
+                    } catch (DataAccessException e) {
+                        if (e.getMessage() != null && e.getMessage().toLowerCase().contains("postgres")) {
+                            logger.error("Error saving in Postgres: {}. Rollback H2...", e.getMessage());
+                            try {
+                                if (dtoBackup != null) {
+                                    h2Service.save(dtoBackup);
+                                }
+                            } catch (Exception rollbackEx) {
+                                logger.error("Error when rolling back H2: {}", rollbackEx.getMessage(), rollbackEx);
+                            }
+                        }
+                        else {
+                            logger.error("Error deleting data: {}", e.getMessage(), e);
+                        }
+                    }
+                    catch (Exception e) {
+                        logger.error("Unknown error: {}", e.getMessage(), e);
+                    }
                 }
             }
-        } catch (DataAccessException ex) {
+        }
+        catch (DataAccessException ex) {
             logger.error("Access error", ex);
         }
     }

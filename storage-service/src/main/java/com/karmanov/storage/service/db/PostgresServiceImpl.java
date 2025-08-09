@@ -1,7 +1,7 @@
 package com.karmanov.storage.service.db;
 
 import com.karmanov.storage.component.mapper.EntityMapper;
-import com.karmanov.storage.dto.StorageTextSavedEvent;
+import com.karmanov.storage.dto.ClipboardText;
 import com.karmanov.storage.model.TextEntity;
 import com.karmanov.storage.repo.postgres.PostgresTextRepository;
 import org.slf4j.Logger;
@@ -30,8 +30,8 @@ public class PostgresServiceImpl implements DbService {
     @Override
     @Async
     @Transactional
-    public void save(StorageTextSavedEvent dtoEntity) {
-        TextEntity entity = entityMapper.StotageTextSavedToTextEntity(dtoEntity);
+    public void save(ClipboardText dtoEntity) {
+        TextEntity entity = entityMapper.DtoToTextEntity(dtoEntity);
         postgresTextRepository.save(entity);
         logger.info("Saved to Postgres: {}", entity);
     }
