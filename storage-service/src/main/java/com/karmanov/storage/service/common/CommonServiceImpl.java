@@ -1,5 +1,6 @@
 package com.karmanov.storage.service.common;
 
+import com.karmanov.storage.component.exception.RollbackData;
 import com.karmanov.storage.component.mapper.EntityMapper;
 import com.karmanov.storage.component.ttl.TtlManagerImpl;
 import com.karmanov.storage.dto.ClipboardText;
@@ -22,16 +23,20 @@ public class CommonServiceImpl implements CommonService {
     private final H2ServiceImpl h2Service;
     private final TtlManagerImpl ttlManagerImpl;
     private final EntityMapper entityMapper;
+    private final RollbackData rollbackData;
 
     private static final Logger logger = LoggerFactory.getLogger(CommonServiceImpl.class);
 
     public CommonServiceImpl(PostgresServiceImpl postgresService,
                              H2ServiceImpl h2Service,
-                             TtlManagerImpl ttlManagerImpl, EntityMapper entityMapper) {
+                             TtlManagerImpl ttlManagerImpl,
+                             EntityMapper entityMapper,
+                             RollbackData rollbackData) {
         this.postgresService = postgresService;
         this.h2Service = h2Service;
         this.ttlManagerImpl = ttlManagerImpl;
         this.entityMapper = entityMapper;
+        this.rollbackData = rollbackData;
     }
 
     @Override
@@ -41,18 +46,7 @@ public class CommonServiceImpl implements CommonService {
             postgresService.save(event);
         }
         catch(DataAccessException e) {
-            if (e.getCause() != null && e.getMessage().toLowerCase().contains("postgres")) {
-                logger.error("Error saving in Postgres: {}. Roll back H2.", e.getMessage());
-                try{
-                    h2Service.deleteById(event.id());
-                }
-                catch (Exception rollbackEx){
-                    logger.error("Error when rolling back H2: {}", rollbackEx.getMessage(), rollbackEx);
-                }
-            }
-            else {
-                logger.error("Error saving data: {}", e.getMessage(), e);
-            }
+            rollbackData.rollbackSaving(event, e);
         }
         catch (Exception e) {
             logger.error("Unknown error: {}", e.getMessage(), e);
@@ -74,19 +68,9 @@ public class CommonServiceImpl implements CommonService {
             postgresService.deleteById(id);
         }
         catch (DataAccessException e){
-            if (e.getMessage() != null && e.getMessage().toLowerCase().contains("postgres")) {
-                logger.error("Error saving in Postgres: {}. Roll back H2...", e.getMessage());
-                try {
-                    if (dtoBackup != null) {
-                        h2Service.save(dtoBackup);
-                    }
-                } catch (Exception rollbackEx) {
-                    logger.error("Error when rolling back H2: {}", rollbackEx.getMessage(), rollbackEx);
-                }
-            } else {
-                logger.error("Error deleting data: {}", e.getMessage(), e);
-            }
-        } catch (Exception e) {
+            rollbackData.rollbackDeletion(dtoBackup, e);
+        }
+        catch (Exception e) {
             logger.error("Unknown error: {}", e.getMessage(), e);
         }
     }
@@ -136,19 +120,7 @@ public class CommonServiceImpl implements CommonService {
                         h2Service.delete(textEntity);
                         postgresService.delete(textEntity);
                     } catch (DataAccessException e) {
-                        if (e.getMessage() != null && e.getMessage().toLowerCase().contains("postgres")) {
-                            logger.error("Error saving in Postgres: {}. Rollback H2...", e.getMessage());
-                            try {
-                                if (dtoBackup != null) {
-                                    h2Service.save(dtoBackup);
-                                }
-                            } catch (Exception rollbackEx) {
-                                logger.error("Error when rolling back H2: {}", rollbackEx.getMessage(), rollbackEx);
-                            }
-                        }
-                        else {
-                            logger.error("Error deleting data: {}", e.getMessage(), e);
-                        }
+                        rollbackData.rollbackDeletion(dtoBackup, e);
                     }
                     catch (Exception e) {
                         logger.error("Unknown error: {}", e.getMessage(), e);
