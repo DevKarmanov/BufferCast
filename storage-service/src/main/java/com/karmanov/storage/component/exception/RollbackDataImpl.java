@@ -51,6 +51,12 @@ public class RollbackDataImpl implements RollbackData {
 
     @Override
     public boolean isPostgresError(DataAccessException e) {
-        return e.getMessage() != null && e.getMessage().toLowerCase().contains("postgres");
+        Throwable cause = e.getCause();
+        if (cause instanceof org.postgresql.util.PSQLException psqlException) {
+            String sqlState = psqlException.getSQLState();
+            return sqlState != null &&
+                    (sqlState.startsWith("23") || sqlState.startsWith("40"));
+        }
+        return false;
     }
 }
