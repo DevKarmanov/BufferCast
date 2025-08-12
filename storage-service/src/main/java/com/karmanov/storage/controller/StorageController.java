@@ -1,7 +1,5 @@
 package com.karmanov.storage.controller;
 
-import com.karmanov.storage.model.TextEntity;
-import lombok.Getter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,5 +15,4 @@ public interface StorageController {
 
     @GetMapping("/{id}")
     ResponseEntity<?> findById(@PathVariable UUID id);
-
 }

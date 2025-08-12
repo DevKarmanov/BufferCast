@@ -1,7 +1,7 @@
 package com.karmanov.storage.service.db;
 
 import com.karmanov.storage.component.mapper.EntityMapper;
-import com.karmanov.storage.dto.StorageTextSavedEvent;
+import com.karmanov.storage.dto.ClipboardText;
 import com.karmanov.storage.model.TextEntity;
 import com.karmanov.storage.repo.h2.H2TextRepository;
 import org.slf4j.Logger;
@@ -25,15 +25,15 @@ public class H2ServiceImpl implements DbService {
     }
 
     @Override
-    @Transactional("h2TransactionManager")
-    public void save(StorageTextSavedEvent dtoEntity) {
-        TextEntity entity = entityMapper.StotageTextSavedToTextEntity(dtoEntity);
+    @Transactional
+    public void save(ClipboardText dtoEntity) {
+        TextEntity entity = entityMapper.DtoToTextEntity(dtoEntity);
         h2TextRepository.save(entity);
         logger.info("Saved successfully: {}", entity.getId());
     }
 
     @Override
-    @Transactional("h2TransactionManager")
+    @Transactional
     public void deleteById(UUID id) {
         try {
             h2TextRepository.deleteById(id);
@@ -45,7 +45,7 @@ public class H2ServiceImpl implements DbService {
     }
 
     @Override
-    @Transactional("h2TransactionManager")
+    @Transactional
     public void delete(TextEntity text) {
         try {
             h2TextRepository.delete(text);
@@ -53,5 +53,9 @@ public class H2ServiceImpl implements DbService {
         } catch (DataAccessException ex) {
             logger.error("Access error in H2", ex);
         }
+    }
+
+    public TextEntity findById(UUID id) {
+        return h2TextRepository.findById(id).orElse(null);
     }
 }

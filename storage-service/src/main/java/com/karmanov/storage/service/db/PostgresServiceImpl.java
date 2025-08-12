@@ -1,7 +1,7 @@
 package com.karmanov.storage.service.db;
 
 import com.karmanov.storage.component.mapper.EntityMapper;
-import com.karmanov.storage.dto.StorageTextSavedEvent;
+import com.karmanov.storage.dto.ClipboardText;
 import com.karmanov.storage.model.TextEntity;
 import com.karmanov.storage.repo.postgres.PostgresTextRepository;
 import org.slf4j.Logger;
@@ -29,16 +29,16 @@ public class PostgresServiceImpl implements DbService {
 
     @Override
     @Async
-    @Transactional("postgresTransactionManager")
-    public void save(StorageTextSavedEvent dtoEntity) {
-        TextEntity entity = entityMapper.StotageTextSavedToTextEntity(dtoEntity);
+    @Transactional
+    public void save(ClipboardText dtoEntity) {
+        TextEntity entity = entityMapper.DtoToTextEntity(dtoEntity);
         postgresTextRepository.save(entity);
         logger.info("Saved to Postgres: {}", entity);
     }
 
     @Override
     @Async
-    @Transactional("postgresTransactionManager")
+    @Transactional
     public void deleteById(UUID id) {
         try {
             postgresTextRepository.deleteById(id);
@@ -51,7 +51,7 @@ public class PostgresServiceImpl implements DbService {
 
     @Override
     @Async
-    @Transactional("postgresTransactionManager")
+    @Transactional
     public void delete(TextEntity text) {
         try {
             postgresTextRepository.delete(text);

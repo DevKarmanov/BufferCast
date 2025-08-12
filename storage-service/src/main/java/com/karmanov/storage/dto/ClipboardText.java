@@ -6,4 +6,4 @@ import com.karmanov.storage.enums.TextType;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-public record StorageTextSavedEvent(String text, TextType type, UUID id, OffsetDateTime date) implements TextData {}
+public record ClipboardText(String text, TextType type, UUID id, OffsetDateTime date) implements TextData {}
