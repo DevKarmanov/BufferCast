@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ClipboardKafkaProducer {
     @Autowired
-    private ObjectMapper mapper;
+    ObjectMapper mapper;
     private final KafkaTemplate<String, byte[]> kafkaTemplate;
     private static final Logger logger = LoggerFactory.getLogger(ClipboardKafkaProducer.class);
 
