@@ -32,8 +32,13 @@ public class PostgresServiceImpl implements DbService {
     @Transactional
     public void save(ClipboardText dtoEntity) {
         TextEntity entity = entityMapper.DtoToTextEntity(dtoEntity);
-        postgresTextRepository.save(entity);
-        logger.info("Saved to Postgres: {}", entity);
+        try{
+            postgresTextRepository.save(entity);
+            logger.info("Saved to Postgres: {}", entity);
+        }
+        catch(DataAccessException e){
+            logger.error("Failed to save entity to Postgres: {}", entity.getId(), e);
+        }
     }
 
     @Override
@@ -45,7 +50,6 @@ public class PostgresServiceImpl implements DbService {
             logger.info("Deleted by id: {} is successfully", id);
         } catch (DataAccessException ex) {
             logger.error("Access error in Postgres", ex);
-            throw ex;
         }
     }
 

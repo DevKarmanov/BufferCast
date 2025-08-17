@@ -13,12 +13,11 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.cloud:spring-cloud-starter-gateway")
     implementation("org.springframework.kafka:spring-kafka")
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    testImplementation platform('org.junit:junit-bom')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     implementation 'com.h2database:h2:2.2.224'
