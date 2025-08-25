@@ -35,27 +35,30 @@ public class ClipboardCollectorService {
         lastText = initialText;
 
         while (!Thread.currentThread().isInterrupted()) {
-            try {
-                if (clipboard != null && clipboard.isDataFlavorAvailable(DataFlavor.stringFlavor)) {
-                    String currentText = (String) clipboard.getData(DataFlavor.stringFlavor);
-                    if (!currentText.equals(lastText)) {
-                        logger.info("Clipboard text is: {}", currentText);
-                        textValidator.validate(currentText);
-                        lastText = currentText;
-                    }
-                }
-            } catch (IllegalStateException e) {
-                logger.warn("The clipboard is temporarily occupied. We'll try it later...");
-            } catch (UnsupportedFlavorException | IOException e) {
-                logger.error("Error: {} - {}", e.getClass().getName(), e.getMessage(), e);
-            }
-
+            processClipboardOnce(clipboard);
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 logger.info("Clipboard monitoring has been stopped.");
                 Thread.currentThread().interrupt();
             }
+        }
+    }
+
+    public void processClipboardOnce(Clipboard clipboard){
+        try {
+            if (clipboard != null && clipboard.isDataFlavorAvailable(DataFlavor.stringFlavor)) {
+                String currentText = (String) clipboard.getData(DataFlavor.stringFlavor);
+                if (!currentText.equals(lastText)) {
+                    logger.info("Clipboard text is: {}", currentText);
+                    textValidator.validate(currentText);
+                    lastText = currentText;
+                }
+            }
+        } catch (IllegalStateException e) {
+            logger.warn("The clipboard is temporarily occupied. We'll try it later...");
+        } catch (UnsupportedFlavorException | IOException e) {
+            logger.error("Error: {} - {}", e.getClass().getName(), e.getMessage(), e);
         }
     }
 }
